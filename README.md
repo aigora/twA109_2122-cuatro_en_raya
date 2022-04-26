@@ -1,7 +1,7 @@
-# [Cuatro en raya]
+#  Cuatro en raya
 Juego tradicionel cuatro en  raya  implementado con leds.
 ## Integrantes del equipo
-
+Daniel Sato Leandro.  d.sato@alumnos.upm.es\n
 [Daniel Sato Leandro. 
 Carlos Loarte  Hernande.
 Mónica Sacristán Sánchez]
