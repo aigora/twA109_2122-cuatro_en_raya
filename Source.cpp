@@ -4,14 +4,22 @@
 #include <locale.h>
 #include "SerialClass/SerialClass.h"
 
-#define MAX_BUFFER 200 // tamaño max. cadenas de char que almacenan mens. de envio y recepcion
+#define MAX_BUFFER 200 // tamaÃ±o max. cadenas de char que almacenan mens. de envio y recepcion
 #define PAUSA_MS 200 //t espera [ms] envio mens.-recepcion respuesta 
+#define LONGCAD 50
+#define NUS 100
 
+typedef struct {
+
+	char nombre[LONGCAD];
+	char apellidos[LONGCAD];
+}Usuario;
 
 int menu_ppal(void);
 int Enviar_y_Recibir(Serial* Arduino, const char* mensaje_enviar, char* mensaje_recibir);
+void registrar_usuarios(Usuario usuarios[NUS]);
 
-//mostrar menú principal
+//mostrar menÃº principal
 
 int menu_ppal(void) {
 
@@ -39,18 +47,20 @@ int main(void) {
 	int opcion_menu;
 	setlocale(LC_ALL, "es-ES");  //idioma castellano
 	Arduino = new Serial((char*)puerto);
+	Usuario usuarios[NUS];
 
 	do {
 		opcion_menu = menu_ppal();
 		switch (opcion_menu) {
 		case 1:
 			//funcion para registrar usuarios
+			registrar_usuarios(usuarios);
 			break;
 		case 2:
 			//funcion para jugar partida
 			break;
 		case 3:
-			//funcion que imprima la puntuación global
+			//funcion que imprima la puntuaciÃ³n global
 			break;
 		case 4:
 			break;
@@ -62,6 +72,41 @@ int main(void) {
 	return 0;
 }
 
+
+//funcion registrar usuarios
+void registrar_usuarios(Usuario usuarios[NUS]) {
+
+	int i = 0;
+	char eleccion;
+
+	printf("Registro de nuevos usuarios\n\n");
+	do {
+		if (i <= NUS) {
+			printf("Introduzca el nombre:\n");
+			gets_s(usuarios[i].nombre, LONGCAD);
+			printf("Introduzca el apellido:\n");
+			gets_s(usuarios[i].apellidos, LONGCAD);
+			i++;
+			printf("Va a registrar otro usuario?\n Seleccione: 's' = si       'n' = no\n");
+			scanf_s("%c", &eleccion);
+		}
+		else {
+			usuarios = (Usuario*)realloc(usuarios, sizeof(Usuario) *( 2 * NUS));
+			if (usuarios == NULL) {
+				printf("Memoria insuficiente, no es posible aumetar el numero de usuarios\n");
+			}
+			else {
+				printf("Introduzca el nombre:\n");
+				gets_s(usuarios[i].nombre, LONGCAD);
+				printf("Introduzca el apellido\n");
+				gets_s(usuarios[i].apellidos, LONGCAD);
+				i++;
+				printf("Va a registrar otro usuario?\n Seleccione: 's' = si       'n' = no\n");
+				scanf_s("%c", &eleccion);
+			}
+		}
+	} while (eleccion=='s');
+}
 
 
 //conectar arduino y visual
