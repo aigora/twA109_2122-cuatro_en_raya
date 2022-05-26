@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,9 +7,9 @@
 #define MAX_BUFFER 200 // tamaño max. cadenas de char que almacenan mens. de envio y recepcion
 #define PAUSA_MS 200 //t espera [ms] envio mens.-recepcion respuesta 
 
-#define ANCHO 7 // Ancho del tablero
-#define LARGO  6 // Largo del tablero
-#define FMAX 35 // Numero de fichas maximo
+#define ANCHO 6         // Ancho del tablero
+#define LARGO  6       // Largo del tablero
+#define FMAX 35       // Numero de fichas maximo
 #define FICHAS_FIN 4 // Numero de fichas para terminar
 
 const char* jugadores[2][2] =
@@ -18,7 +17,6 @@ const char* jugadores[2][2] =
 	{"Primer", "ROJO"},
 	{"Segundo", "AMARILLO"}
 };
-
 
 typedef struct
 {
@@ -33,43 +31,30 @@ typedef struct
 } Fichas;
 
 void inicio(char tablero[LARGO][ANCHO]);
-void imprime_tablero(char tablero[LARGO][ANCHO], int turno);
+void imprime_tablero(char tablero[LARGO][ANCHO], int turno, char nombre1[], char nombre2[]);
 void mete_ficha(char tablero[LARGO][ANCHO], int* pos, int turno, Fichas* fichas, int num_fichas);
 void inserta_ficha(Fichas* fichas, int num_fichas, int X, int Y, int num_jugador);
 bool juego_terminado(char tablero[LARGO][ANCHO], int turno);
 
 
-
 int main(int argc, char* argv[])
 {
-	Serial* Arduino;
-	char puerto[] = "COM5"; //en el mio
-	setlocale(LC_ALL, "es-ES");  //idioma castellano
-	Arduino = new Serial((char*)puerto);
 
+	//Aqui Empieza el codigo del Menú
 
 	int opcion1, opcion2, ctrl, cantidad_usuarios = 0, i = 0, jugadores_iniciados = 0, no_coincide = 0;
 	char nombre_inicio[100], nombre_registrar[50];
 	nombre  nombres_registrados[100], jugadores[1];
 
-
-	int turno = 0, posicion = 0;
-	bool end = false, next = false;
-
-	char tablero[LARGO][ANCHO];
-
-	Fichas fichas[FMAX];
-	int num_fichas = 0;
-
-	FILE* registrados; // *historial;
-	errno_t e1; // e2;
+	FILE* registrados, * historial;
+	errno_t e1, e2;
 
 	//Leer y contar jugadores registrados
 
-	e1 = fopen_s(&registrados, "Registrados.txt", "rt");
+	e1= fopen_s(&registrados, "Registrados.txt", "r");
 	do
 	{
-		ctrl = fscanf_s(registrados, "%s", nombres_registrados[i].nombre_registrado,100);
+		ctrl = fscanf_s(registrados, "%s", nombres_registrados[i].nombre_registrado, 100);
 
 		i++;
 		cantidad_usuarios++;
@@ -94,26 +79,27 @@ int main(int argc, char* argv[])
 			printf("2) No estas registrado? Crea un usuario nuevo.\n");
 			scanf_s("%d", &opcion2);
 
+
 			switch (opcion2) //Dentro de opcion jugar. Opcion iniciar sesion o registrarse.
 			{
 			case 1:
 				printf("Dame tu nombre de usuario: \n");
-				scanf_s("%s", &nombre_inicio);
+				//scanf_s("%s", &nombre_inicio);
+				gets_s(nombre_inicio, 100);
 
-
-				e1 = fopen_s(&registrados, "Registrados.txt", "r");
+				e2=fopen_s(&registrados, "Registrados.txt", "r");
 				i = 0;
 				no_coincide = 0;
 				for (i = 0; i <= cantidad_usuarios; i++)  //Recorre la lista de usuarios registrados
 				{
 
-					ctrl = fscanf_s(registrados, "%s", &nombres_registrados[i].nombre_registrado);
+					ctrl = fscanf_s(registrados, "%s", nombres_registrados[i].nombre_registrado, 100);
 					if (ctrl == 1)
 					{
 						if (strcmp(nombres_registrados[i].nombre_registrado, nombre_inicio) == 0)  //Si el nombre ingresado esta ya registrado
 						{
 							printf("Iniciando sesion...\n");
-							strcpy_s(jugadores[jugadores_iniciados].jugador, 100, nombres_registrados[i].nombre_registrado);
+							strcpy_s(jugadores[jugadores_iniciados].jugador, nombres_registrados[i].nombre_registrado);
 							jugadores_iniciados++;
 							break;
 						}
@@ -135,13 +121,14 @@ int main(int argc, char* argv[])
 
 			case 2:
 				printf("Dame tu nombre de usuario:\n");
-				scanf_s("%s", &nombre_registrar);
+				//scanf_s("%s", nombre_registrar);
+				gets_s(nombre_registrar, 100);
 
-				e1 = fopen_s(&registrados, "Registrados.txt", "at");
-
+				e2=fopen_s(&registrados, "Registrados.txt", "a");
 				if (registrados == NULL)
 				{
-					printf("\nError.\n");
+					printf("\nError.");
+
 				}
 				else
 				{
@@ -154,39 +141,57 @@ int main(int argc, char* argv[])
 			break;
 
 		case 2:
-			printf("Historial de juego:\n");
+			printf("Historial de juego:\n");     //Te enseña los jugadores que estan registrados y los nombres con los que puedes iniciar sesion
 
-			e1 = fopen_s(&registrados, "Registrados.txt", "rt");
+			e1=fopen_s(&registrados,"Registrados.txt", "r");
 			do
 			{
-				ctrl = fscanf_s(registrados, "%s", &nombres_registrados[i].nombre_registrado);
+				ctrl = fscanf_s(registrados, "%s", nombres_registrados[i].nombre_registrado, 100);
 
 				printf("%s\n", nombres_registrados[i].nombre_registrado);
 				i++;
 			} while (ctrl == 1);
 
 			fclose(registrados);
+
+			system("PAUSE");
+
 			break;
 
 		case 3:
 			return 0;
-
 		}
+		//	system("PAUSE");
+		system("CLS");
 	} while (jugadores_iniciados < 2);
 
-	if (jugadores_iniciados == 2)
-		printf("Empieza La Partida: %s Vs %s", jugadores[0].jugador, jugadores[1].jugador);
+	if (jugadores_iniciados == 2)   //Cuando hay dos jugadores con la sesion iniciada empieza la partida
+	{
+		system("CLS");
+		printf("Empieza La Partida: %s Vs %s\n", jugadores[0].jugador, jugadores[1].jugador);
+
+		system("PAUSE");
+
+	}   //Termina el codigo del menú
+
+	int turno = 0, posicion = 0;
+	bool end = false, next = false;
+
+	char tablero[LARGO][ANCHO];
+
+	Fichas fichas[FMAX];
+	int num_fichas = 0;
 
 	inicio(tablero);
 
 	while (!end)
 	{
 		// Imprime el tablero
-		imprime_tablero(tablero, turno);
+		imprime_tablero(tablero, turno, jugadores[0].jugador, jugadores[1].jugador);
 
 		// Crea un bucle para comprobar el scanf
 		do {
-			printf("Escribe la posicion [0-6]: ");
+			printf("Escribe la posicion [0-5]: ");
 			scanf_s("%d", &posicion);
 
 			if (!(posicion >= 0 && posicion < ANCHO))
@@ -203,6 +208,7 @@ int main(int argc, char* argv[])
 			{
 				next = true;
 			}
+			//   system("CLS");
 		} while (!next);
 
 		// Añade la ficha al tablero
@@ -212,7 +218,13 @@ int main(int argc, char* argv[])
 		// Comprueba si ha ganado alguien o es el fin
 		if (juego_terminado(tablero, turno))
 		{
-		//	printf("\n\nHa ganado el jugador %s\n", jugadores[turno % 2][1]);
+			//	printf("Partida terminada\n");
+			//	printf("Turno %d",turno);
+
+			if (turno % 2 == 0)
+				printf("GANADOR: %s\n", jugadores[0].jugador);
+			else
+				printf("GANADOR: %s\n", jugadores[1].jugador);
 
 			end = true;
 		}
@@ -225,9 +237,6 @@ int main(int argc, char* argv[])
 			turno++;
 	}
 
-
-	system("PAUSE");
-	return 0;
 }
 
 void inicio(char tablero[LARGO][ANCHO])
@@ -241,12 +250,19 @@ void inicio(char tablero[LARGO][ANCHO])
 	}
 }
 
-void imprime_tablero(char tablero[LARGO][ANCHO], int turno)
+void imprime_tablero(char tablero[LARGO][ANCHO], int turno, char nombre1[], char nombre2[])
 {
-	//limpia el tablero
+
 	system("CLS");
 
-	printf("\n\tTurno del %s jugador %s\n\n", jugadores[turno % 2][0], jugadores[turno % 2][1]);
+	if (turno % 2 == 0)
+	{
+		printf("\n\tTurno del %s jugador(%s)\n\n", jugadores[turno % 2][0], nombre1);  //Aquí es donde imprime jugador Rojo o AMarillo
+	}
+	else
+	{
+		printf("\n\tTurno del %s jugador(%s)\n\n", jugadores[turno % 2][0], nombre2);                                                                                              //Queremos que salga el nombre del primer y el segundo jugador que inicia sesion
+	}                                                                                               //Lo hemos intentado pero no nos sale
 
 	for (int i = 0; i < LARGO; i++)
 	{
@@ -264,6 +280,8 @@ void imprime_tablero(char tablero[LARGO][ANCHO], int turno)
 		printf(" %i ", i);
 	}
 	printf("\n\n");
+
+
 }
 
 void mete_ficha(char tablero[LARGO][ANCHO], int* pos, int turno, Fichas fichas[FMAX], int num_fichas)
