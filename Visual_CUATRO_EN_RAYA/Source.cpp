@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
-#include "SerialClass/SerialClass.h"
+#include "SerialClass.h" 
 
-#define MAX_BUFFER 200 // tamaño max. cadenas de char que almacenan mens. de envio y recepcion
+#define MAX_BUFFER 200 // tamaÃ±o max. cadenas de char que almacenan mens. de envio y recepcion
 #define PAUSA_MS 200 //t espera [ms] envio mens.-recepcion respuesta 
 
 #define ANCHO 6         // Ancho del tablero
@@ -35,19 +35,20 @@ void imprime_tablero(char tablero[LARGO][ANCHO], int turno, char nombre1[], char
 void mete_ficha(char tablero[LARGO][ANCHO], int* pos, int turno, Fichas fichas[FMAX], int num_fichas);
 void inserta_ficha(Fichas* fichas, int num_fichas, int X, int Y, int num_jugador);
 bool juego_terminado(char tablero[LARGO][ANCHO], int turno);
-void encender_led(Serial* Arduino, char* port, int *pos);
+int Enviar_y_Recibir(Serial* Arduino, const char* mensaje_enviar, char* mensaje_recibir);
+char entero_a_cadena(int posicion);
 
 
 int main(int argc, char* argv[])
 {
 	Serial* Arduino;
-	char puerto[] = "COM4"; // Puerto serie al que está conectado Arduino
+	char puerto[] = "COM7"; // Puerto serie al que estÃ¡ conectado Arduino
 
 	setlocale(LC_ALL, "es-ES"); //castellano
 	Arduino = new Serial((char*)puerto);
 
 	int opcion1, opcion2, ctrl, cantidad_usuarios = 0, i, jugadores_iniciados = 0, no_coincide = 0;
-	char nombre_inicio[100], nombre_registrar[100];
+	char nombre_inicio[100], nombre_registrar[100], pos[20], mensaje[20];
 	nombre  nombres_registrados[100], jugadores[1];
 
 	FILE* registrados;
@@ -58,14 +59,16 @@ int main(int argc, char* argv[])
 	Fichas fichas[FMAX];
 	int num_fichas = 0;
 
-	//Aqui Empieza el codigo del Menú
+	//Aqui Empieza el codigo del MenÃº
 
 	//Leer y contar jugadores registrados
-	
+
 	i = 0;
 	fopen_s(&registrados, "Registrados.txt", "rt");
-	if (registrados != NULL) {
-		while (!feof(registrados)) {
+	if (registrados != NULL) 
+	{
+		while (!feof(registrados)) 
+		{
 
 			fscanf_s(registrados, "%s", nombres_registrados[i].nombre_registrado, 100);
 			i++;
@@ -121,18 +124,20 @@ int main(int argc, char* argv[])
 						{
 							no_coincide++;
 						}
+						
+
 					}
 					if (no_coincide == cantidad_usuarios) { //Si recorre la lista entera y no hay coincidencias con ningun nombre
 						printf("Nombre no registrado.\n");
 						system("PAUSE");
 					}
-						
+
 				}
 				if (cantidad_usuarios == 0) {
 					printf("Error.Todavia no hay usuarios registrados\n");
 					system("PAUSE");
 				}
-				
+
 				system("PAUSE");
 				break;
 
@@ -141,7 +146,7 @@ int main(int argc, char* argv[])
 				gets_s(nombre_registrar, 100);
 				gets_s(nombre_registrar, 100);
 
-				fopen_s(&registrados,"Registrados.txt", "a+");
+				fopen_s(&registrados, "Registrados.txt", "a+");
 				if (registrados != NULL)
 				{
 					printf("Registrando a %s...\n", nombre_registrar);
@@ -154,10 +159,11 @@ int main(int argc, char* argv[])
 			break;
 
 		case 2:
-			printf("Historial de juego:\n");     //Te enseña los jugadores que estan registrados y los nombres con los que puedes iniciar sesion
+			printf("Historial de juego:\n");     //Te enseÃ±a los jugadores que estan registrados y los nombres con los que puedes iniciar sesion
 
-			fopen_s(&registrados,"Registrados.txt", "rt");
-			if (registrados != NULL) {
+			fopen_s(&registrados, "Registrados.txt", "rt");
+			if (registrados != NULL)
+			{
 				for (i = 0; i <= cantidad_usuarios; i++) {
 					printf("%s\n", nombres_registrados[i].nombre_registrado);
 					i++;
@@ -180,10 +186,10 @@ int main(int argc, char* argv[])
 
 		system("PAUSE");
 
-	}   //Termina el codigo del menú
+	}   //Termina el codigo del menÃº
 
 
-	//Aquí empieza el código del juego
+	//AquÃ­ empieza el cÃ³digo del juego
 
 	inicio(tablero);
 
@@ -197,7 +203,10 @@ int main(int argc, char* argv[])
 			printf("Escribe la posicion [0-5]: ");
 			scanf_s("%d", &posicion);
 
-			encender_led(Arduino, puerto, &posicion);
+			pos[0] = entero_a_cadena(posicion);
+
+			Enviar_y_Recibir(Arduino, pos, mensaje);
+		
 
 			if (!(posicion >= 0 && posicion < ANCHO))
 			{
@@ -216,7 +225,9 @@ int main(int argc, char* argv[])
 
 		} while (!next);
 
-		// Añade la ficha al tablero
+
+
+		// AÃ±ade la ficha al tablero
 		mete_ficha(tablero, &posicion, turno % 2, fichas, num_fichas);
 		num_fichas++;
 
@@ -259,12 +270,12 @@ void imprime_tablero(char tablero[LARGO][ANCHO], int turno, char nombre1[], char
 
 	if (turno % 2 == 0)
 	{
-		printf("\n\tTurno del %s jugador(%s)\n\n", jugadores[turno % 2][0], nombre1);  
+		printf("\n\tTurno del %s jugador(%s)\n\n", jugadores[turno % 2][0], nombre1);
 	}
 	else
 	{
 		printf("\n\tTurno del %s jugador(%s)\n\n", jugadores[turno % 2][0], nombre2);                                                                                              //Queremos que salga el nombre del primer y el segundo jugador que inicia sesion
-	}                                                                                             
+	}
 
 	for (int i = 0; i < LARGO; i++)
 	{
@@ -372,29 +383,11 @@ bool juego_terminado(char tablero[LARGO][ANCHO], int turno)
 	return false;
 }
 
-//encendido de led en tablero
-
-void enecender_led(Serial* Arduino, char* port, int *pos) {
-
-	int bytesRecibidos;
-	char mensaje_enviado[MAX_BUFFER];
-	char mensaje_recibido[MAX_BUFFER];
-
-	if (Arduino->IsConnected())
-	{
-		sprintf_s(mensaje_enviado, "%d", *pos);
-		bytesRecibidos = Enviar_y_Recibir(Arduino, mensaje_enviado, mensaje_recibido);
-		 
-	}
-	else {
-		printf("No se ha podido conectar con Arduino\n");
-	}
-}
-
 
 //conectar arduino y visual
- 
-int Enviar_y_Recibir(Serial* Arduino, const char* mensaje_enviar, char* mensaje_recibir){
+
+int Enviar_y_Recibir(Serial* Arduino, const char* mensaje_enviar, char* mensaje_recibir)
+{
 
 	int bytes_recibidos = 0, total = 0;
 	int intentos = 0, fin_linea = 0;
@@ -420,4 +413,12 @@ int Enviar_y_Recibir(Serial* Arduino, const char* mensaje_enviar, char* mensaje_
 	}
 
 	return total;
+}
+char entero_a_cadena(int posicion)
+{
+	char n;
+
+	n = posicion + '0';
+
+	return n;
 }
