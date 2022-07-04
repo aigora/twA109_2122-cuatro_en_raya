@@ -1,96 +1,215 @@
 #include <FastLED.h>
+
+#define DEBUG(a) Serial.println(a);
+
 #define LED_PIN 6
-#define NUM_LEDS 36
+#define NUM_LEDS 35
 CRGB leds[NUM_LEDS];
 
-int mensaje_recibido; 
+mensaje_recibido=Serial.readStringUntil('\n');
 
-void setup() {
+String mensaje_recibido; 
+
+void setup() 
+{
  Serial.begin(9600);
  FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
  pinMode(LED_PIN, OUTPUT);
+
+   Serial.begin(9600);
+   long value;
+   value = mensaje_recibido.toInt();
+   DEBUG(value);
 }
 
-void loop() {
+void loop() 
+{
+  int i;
+  int j=0;
 
- if(Serial.available()>0){
-  mensaje_recibido=Serial.readStringUntil('\n');
-  switch(mensaje_recibido)
+ if(Serial.available()>0)
+ {
+
+  for(j=0;j<30;j++)
+
   {
-    case 0:
-    if(leds[0]=CRGB(255,0,0)||leds[0]=CRGB(255,255,0))
-    {
-      leds[1]=CRGB(255,0,0);
-      FastLED.show();
-    }else{
-      leds[0]=CRGB(255,0,0);
-    FastLED.show();
-    delay(200);
-    }
-    break;
+      switch(mensaje_recibido) 
+      {
+        case 0:
 
-    case 1:
-    if(leds[6]=CRGB(255,0,0)||leds[6]=CRGB(255,255,0))
-    {
-      leds[7]=CRGB(255,0,0);
-      FastLED.show();
-    }else{
-      leds[6]=CRGB(255,0,0);
-    FastLED.show();
-    delay(200);
-    }
-    break;
+        if(j%2==0)
+        {
+              for(i=0;i<6;i++)
+              {
+                if(leds[i]==CRGB(0,0,0))
+                {
+                  leds[i]==CRGB(255,0,0);
+                  FastLED.show();
+                  delay(200);
+                }
+              }
+        }
 
-    case 2:
-    if(leds[12]=CRGB(255,0,0)||leds[12]=CRGB(255,255,0))
-    {
-      leds[13]=CRGB(255,0,0);
-      FastLED.show();
-    }else{
-      leds[12]=CRGB(255,0,0);
-    FastLED.show();
-    delay(200);
-    }
-    break;
+        else
+        {
+           for(i=0;i<6;i++)
+              {
+                if(leds[i]==CRGB(0,0,0))
+                {
+                  leds[i]==CRGB(255,255,0);
+                  FastLED.show();
+                  delay(200);
+                }
+              }
+        }
+    
+        break;
+    
+        case 1:
+        
+       if(j%2==0)
+        {
+              for(i=6;i<12;i++)
+              {
+                if(leds[i]==CRGB(0,0,0))
+                {
+                  leds[i]==CRGB(255,0,0);
+                  FastLED.show();
+                  delay(200);
+                }
+              }
+        }
 
-    case 3:
-    if(leds[18]=CRGB(255,0,0)||leds[18]=CRGB(255,255,0))
-    {
-      leds[19]=CRGB(255,0,0);
-      FastLED.show();
-    }else{
-      leds[18]=CRGB(255,0,0);
-    FastLED.show();
-    delay(200);
-    }
-    break;
+        else
+        {
+           for(i=6;i<12;i++)
+              {
+                if(leds[i]==CRGB(0,0,0))
+                {
+                  leds[i]==CRGB(255,255,0);
+                  FastLED.show();
+                  delay(200);
+                }
+              }
+        }
+        
+        break;
+    
+        case 2:
+        
+       if(j%2==0)
+        {
+              for(i=12;i<24;i++)
+              {
+                if(leds[i]==CRGB(0,0,0))
+                {
+                  leds[i]==CRGB(255,0,0);
+                  FastLED.show();
+                  delay(200);
+                }
+              }
+        }
 
-    case 4:
-    if(leds[24]=CRGB(255,0,0)||leds[24]=CRGB(255,255,0))
-    {
-      leds[25]=CRGB(255,0,0);
-      FastLED.show();
-    }else{
-      leds[24]=CRGB(255,0,0);
-    FastLED.show();
-    delay(200);
-    }
-    break;
+        else
+        {
+           for(i=12;i<18;i++)
+              {
+                if(leds[i]==CRGB(0,0,0))
+                {
+                  leds[i]==CRGB(255,255,0);
+                  FastLED.show();
+                  delay(200);
+                }
+              }
+        }
+        break;
+    
+        case 3:
+             if(j%2==0)
+        {
+              for(i=18;i<24;i++)
+              {
+                if(leds[i]==CRGB(0,0,0))
+                {
+                  leds[i]==CRGB(255,0,0);
+                  FastLED.show();
+                  delay(200);
+                }
+              }
+        }
 
-    case 5:
-    if(leds[30]=CRGB(255,0,0)||leds[30]=CRGB(255,255,0))
-    {
-      leds[31]=CRGB(255,0,0);
-      FastLED.show();
-    }else{
-      leds[30]=CRGB(255,0,0);
-    FastLED.show();
-    delay(200);
-    }
-    break;
+        else
+        {
+           for(i=18;i<24;i++)
+              {
+                if(leds[i]==CRGB(0,0,0))
+                {
+                  leds[i]==CRGB(255,255,0);
+                  FastLED.show();
+                  delay(200);
+                }
+              }
+        }
+        break;
+    
+        case 4:
+        if(j%2==0)
+        {
+              for(i=24;i<30;i++)
+              {
+                if(leds[i]==CRGB(0,0,0))
+                {
+                  leds[i]==CRGB(255,0,0);
+                  FastLED.show();
+                  delay(200);
+                }
+              }
+        }
 
+        else
+        {
+           for(i=18;i<30;i++)
+              {
+                if(leds[i]==CRGB(0,0,0))
+                {
+                  leds[i]==CRGB(255,255,0);
+                  FastLED.show();
+                  delay(200);
+                }
+              }
+        }
+        break;
+    
+        case 5:
+       if(j%2==0)
+        {
+              for(i=30;i<36;i++)
+              {
+                if(leds[i]==CRGB(0,0,0))
+                {
+                  leds[i]==CRGB(255,0,0);
+                  FastLED.show();
+                  delay(200);
+                }
+              }
+        }
+
+        else
+        {
+           for(i=30;i<36;i++)
+              {
+                if(leds[i]==CRGB(0,0,0))
+                {
+                  leds[i]==CRGB(255,255,0);
+                  FastLED.show();
+                  delay(200);
+                }
+              }
+        }
+        break;
+    
+      }
   }
- 
  }
- 
+
 }
